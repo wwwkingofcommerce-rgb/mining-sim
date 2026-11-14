@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mining Simulator</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+<style>
+body {
+    font-family: monospace;
+    background-color: #121212;
+    color: #ffffff;
+    text-align: center;
+    padding: 40px 20px;
+    margin: 0;
+}
+.btn {
+    background-color: #0088cc;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 18px;
+    border-radius: 8px;
+    margin-top: 15px;
+    width: 80%;
+    max-width: 300px;
+}
+.btn-wallet {
+    background-color: #ab9ff2;
+    color: #1e1e1e;
+    font-weight: bold;
+}
+#wallet-info {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #4ade80;
+    word-wrap: break-word;
+}
+.stats {
+    background: #1e1e1e;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px auto;
+    max-width: 300px;
+    border: 1px solid #333;
+}
+#mine-btn {
+    background-color: #f39c12;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    font-size: 24px;
+    font-weight: bold;
+    box-shadow: 0 8px 15px rgba(243, 156, 18, 0.4);
+    transition: transform 0.1s;
+}
+#mine-btn:active {
+    transform: scale(0.95);
+    box-shadow: 0 4px 10px rgba(243, 156, 18, 0.4);
+}
+</style>
+</head>
+<body>
+<h1>Virtual Miner</h1>
+<div class="stats">
+<p>Balance: <span id="balance">0.000</span> USDT</p>
+<p>Hash Power: <span id="hashrate">0</span> H/s</p>
+</div>
+<button id="mine-btn" onclick="mine()">MINE</button>
+<br><br>
+<button class="btn btn-wallet" id="connect-btn" onclick="connectPhantom()">Connect Phantom Wallet</button>
+<p id="wallet-info"></p>
+<script>
+const tg = window.Telegram.WebApp;
+tg.expand();
+let balance = 0.000;
+let hashrate = 0;
+let userWalletAddress = null;
+async function connectPhantom() {
+    try {
+        const provider = window.solana;
+        if (provider && provider.isPhantom) {
+            const response = await provider.connect();
+            userWalletAddress = response.publicKey.toString();
+            document.getElementById('wallet-info').innerText = userWalletAddress.substring(0, 4) + "..." + userWalletAddress.substring(userWalletAddress.length - 4);
+            document.getElementById('connect-btn').innerText = "Connected";
+            document.getElementById('connect-btn').style.backgroundColor = "#4ade80";
+            tg.HapticFeedback.notificationOccurred('success');
+        } else {
+            window.open("https://phantom.app/", "_blank");
+        }
+    } catch (err) {
+        tg.HapticFeedback.notificationOccurred('error');
+    }
+}
+function mine() {
+    hashrate += 10;
+    balance += 0.001;
+    document.getElementById('hashrate').innerText = hashrate;
+    document.getElementById('balance').innerText = balance.toFixed(3);
+    tg.HapticFeedback.impactOccurred('light');
+}
+</script>
+</body>
+</html>
